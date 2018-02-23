@@ -37,7 +37,6 @@ function createInstance({ port, basePath, middleware: baseMiddleware = [], bodyP
 
   return {
     listen: ({ path, action, method = 'get', middleware = [] }) => {
-
       router[method.toLowerCase()](path, ...middleware, async (request, response) => {
         const result = await action({
           data: {
