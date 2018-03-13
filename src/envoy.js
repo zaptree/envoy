@@ -1,6 +1,9 @@
 const http = require('./messengers/http');
 const rabbitMQ = require('./messengers/rabbitMQ');
 
+const wrapActionsWithSchema = require('./wrap-schema');
+const wrapActionsWithComponent = require('./wrap-components');
+
 const messengers = {
   http,
   rabbitMQ,
@@ -17,9 +20,11 @@ function createService({ components: baseComponents, configurations }) {
   });
 
   return {
-    listen: (instanceKey, { components, action, ...options }) => {
-      // todo: wrapAction with component code, schema validation and all that stuff
-      const wrappedAction = action;
+    listen: (instanceKey, { components, action, schema = {}, ...options }) => {
+
+      let wrappedAction = wrapActionsWithSchema(schema, action);
+      wrappedAction = wrapActionsWithComponent(components, wrappedAction);
+
       return instances[instanceKey].listen(Object.assign({
         action: wrappedAction,
       }, options));
@@ -29,7 +34,6 @@ function createService({ components: baseComponents, configurations }) {
       return Promise.all(Object.keys(instances).map((key) => instances[key].readyPromise))
     }
   }
-
 }
 
 function createSender() {

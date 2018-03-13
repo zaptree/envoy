@@ -38,19 +38,46 @@ function createInstance({ port, basePath, middleware: baseMiddleware = [], bodyP
   return {
     listen: ({ path, action, method = 'get', middleware = [] }) => {
       router[method.toLowerCase()](path, ...middleware, async (request, response) => {
-        const result = await action({
-          data: {
-            ...request.headers,
-            ...request.params,
-            ...request.query,
-            ...request.body,
-          },
-          body: request.body,
-          headers: request.headers,
-          query: request.query,
-          params: request.params,
-        }, {request, response});
-        response.json(result);
+        try {
+          const result = await action({
+            data: {
+              ...request.headers,
+              ...request.params,
+              ...request.query,
+              ...request.body,
+            },
+            body: request.body,
+            headers: request.headers,
+            query: request.query,
+            params: request.params,
+          }, {request, response});
+          if (response.error) {
+            let status = response.status || 500;
+            let errorCode = response.errorCode || 'SERVER_ERROR';
+            let errorMessage = response.errorMessage || 'Server error';
+            let errors = response.errors || [{
+              message: errorMessage,
+            }];
+            response.status(status);
+            return response.json({
+              errorCode,
+              errorMessage,
+              errors,
+            });
+          }
+          return response.json(result.data);
+        } catch (error) {
+          console.error(error);
+          response.status(500);
+          return response.json({
+            errorCode: 'SERVER_ERROR',
+            errorMessage: error.message,
+            errors: [{
+              message: error.message,
+            }],
+          });
+        }
+
       });
       return {
         stop: () => {

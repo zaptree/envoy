@@ -1,5 +1,5 @@
 {
-  "name": "envoyjs",
+  "name": "@instancejs/envoy",
   "version": "0.0.1",
   "description": "messenger for wiring up services",
   "main": "index.js",
