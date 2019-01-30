@@ -9,7 +9,7 @@ const messengers = {
   rabbitMQ,
 };
 
-function createService({ components: baseComponents, configurations }) {
+function createService({ components: componentInstances, configurations }) {
   const instances = {};
 
   // instantiate messengers
@@ -20,10 +20,15 @@ function createService({ components: baseComponents, configurations }) {
   });
 
   return {
-    listen: (instanceKey, { components, action, schema = {}, ...options }) => {
-
+    listen: (instanceKey, { components: componentOptions, action, schema = {}, ...options }) => {
+      const componentsWithOptions = Object.keys(componentOptions).map(componentKey => {
+        return {
+          component: componentInstances[componentKey],
+          options: componentOptions[componentKey],
+        };
+      });
       let wrappedAction = wrapActionsWithSchema(schema, action);
-      wrappedAction = wrapActionsWithComponent(components, wrappedAction);
+      wrappedAction = wrapActionsWithComponent(componentsWithOptions, wrappedAction);
 
       return instances[instanceKey].listen(Object.assign({
         action: wrappedAction,

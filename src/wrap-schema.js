@@ -1,7 +1,5 @@
 const SchemaValidator = require('instancejs-schema-validator');
 
-
-
 const wrapActionsWithSchema = (schema = {}, action) => {
   let requestValidator;
   let responseValidator;

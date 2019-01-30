@@ -51,11 +51,13 @@ function createInstance({ port, basePath, middleware: baseMiddleware = [], bodyP
             query: request.query,
             params: request.params,
           }, {request, response});
-          if (response.error) {
-            let status = response.status || 500;
-            let errorCode = response.errorCode || 'SERVER_ERROR';
-            let errorMessage = response.errorMessage || 'Server error';
-            let errors = response.errors || [{
+
+          // this used to ber response.error response.status. I think it was wrong
+          if (result.error) {
+            let status = result.status || 500;
+            let errorCode = result.errorCode || 'SERVER_ERROR';
+            let errorMessage = result.errorMessage || 'Server error';
+            let errors = result.errors || [{
               message: errorMessage,
             }];
             response.status(status);
